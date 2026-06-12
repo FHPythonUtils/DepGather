@@ -26,13 +26,6 @@ jobs:
       - name: Build distributions
         run: uv build
 
-      - name: Sign distributions
-        uses: sigstore/gh-action-sigstore-python@v3
-        with:
-          inputs: |
-            dist/*.whl
-            dist/*.tar.gz
-
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
