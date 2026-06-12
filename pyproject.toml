@@ -3,7 +3,7 @@ name = "depgather"
 version = "2026.0.0"
 description = "Get a list of deps given a pyproject.toml, uv.lock, requirements.txt etc"
 authors = [{ name = "FredHappyface" }]
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 readme = "README.md"
 license = "mit"
 classifiers = [
@@ -77,10 +77,9 @@ venv = ".venv"
 legacy_tox_ini = """
 [tox]
 env_list =
+	py314
 	py313
 	py312
-	py310
-	py39
 
 [testenv]
 deps = pytest

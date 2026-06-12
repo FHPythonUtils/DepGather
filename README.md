@@ -31,8 +31,6 @@ Get a list of deps given a pyproject.toml, uv.lock, requirements.txt etc
 
 ## Documentation
 
-
-
 <!--
 - [Tutorials](/documentation/tutorials) take you by the hand through a series of steps to get
   started us the software. Start here if you’re new.
@@ -55,7 +53,7 @@ Head to <https://pypi.org/project/depgather/> for more info
 
 ## Language information
 
-Using python 3.9, to 3.14
+Using python 3.12, to 3.14
 
 ## Working with the repo
 
