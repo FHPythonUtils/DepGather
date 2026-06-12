@@ -54,6 +54,6 @@ def test_issue_84() -> None:
 			"TZDATA",
 			"VINE",
 			"WCWIDTH",
-			# "Packaging",
+			"Packaging",
 		},
 	)
