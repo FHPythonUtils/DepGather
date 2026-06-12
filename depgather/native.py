@@ -12,14 +12,14 @@ from depgather.interface import DepGatherInterface
 
 
 class NativeInferState:
-	def __init__(self):
+	def __init__(self) -> None:
 		self.reqs: set[Requirement] = set()
 		self.enabledExtras: set[str] = set()
 
 	def resolveWithExtras(
 		self,
 		skipDependencies: set[str],
-	):
+	) -> set[Requirement]:
 		reqs = self.reqs
 
 		skip_names = {"PYTHON", *(d.upper() for d in skipDependencies)}
@@ -72,10 +72,7 @@ class NativeInferState:
 		# determine using based on file type
 		try:
 			pyproject = tomli.loads(requirementsPath.read_text("utf-8"))
-			if pyproject.get("package") is not None:
-				return self.gather_lock_requirements(
-					pyproject=pyproject,
-				)
+
 			if pyproject.get("project", {}).get("dependencies") is not None:
 				return self.gather_pep631_requirements(
 					groups=groups,
@@ -114,7 +111,7 @@ class NativeInferState:
 	) -> bool:
 		try:
 			project = pyproject["project"]
-			reqLists = [project["dependencies"]]
+			reqLists: list[str] = project["dependencies"]
 		except KeyError as error:
 			msg = "Could not find specification of requirements (pyproject.toml)."
 			raise RuntimeError(msg) from error
@@ -141,9 +138,8 @@ class NativeInferState:
 		try:
 			project = pyproject["tool"]["poetry"]
 		except KeyError as error:
-			raise RuntimeError(
-				"Could not find specification of requirements (pyproject.toml)."
-			) from error
+			msg = "Could not find specification of requirements (pyproject.toml)."
+			raise RuntimeError(msg) from error
 
 		dependency_sections = [project.get("dependencies", {})]
 
@@ -156,7 +152,7 @@ class NativeInferState:
 			dependency_sections.append(project.get("dev-dependencies", {}))
 
 		for section in dependency_sections:
-			for name, _spec in section.items():
+			for name in section:
 				self.appendRequirement(name)
 
 		return True
@@ -192,6 +188,19 @@ class NativeInfer(DepGatherInterface):
 		base_index_url: str = "https://pypi.org",
 	) -> set[Requirement]:
 		state: NativeInferState = NativeInferState()
+
+		# when using a lockfile then gatherinfer only and return
+
+		try:
+			pyproject = tomli.loads(requirementsPath.read_text("utf-8"))
+			if pyproject.get("package") is not None and state.gather_lock_requirements(
+				pyproject=pyproject,
+			):
+				return state.reqs
+
+		except tomli.TOMLDecodeError:
+			pass
+
 		if not state.gather_infer(groups, extras, requirementsPath):
 			msg = f"Unable to find requirements for ({requirementsPath})."
 			raise RuntimeError(msg)

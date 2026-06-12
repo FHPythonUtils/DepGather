@@ -49,8 +49,8 @@ def gather(
 			requires extra dependencies. They are commonly specified using
 			bracket notation such as::
 
-	                        requests[socks]
-	                        sqlalchemy[postgresql]
+				requests[socks]
+				sqlalchemy[postgresql]
 
 			Enabling an extra causes its additional dependencies to be
 			included in the resolved dependency graph.

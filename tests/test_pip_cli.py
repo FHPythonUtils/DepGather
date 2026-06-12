@@ -15,7 +15,7 @@ def test_requirements() -> None:
 	# note: This error originates from a subprocess, and is likely not a problem with pip.
 	# ERROR: Failed to build 'pandas' when getting requirements to build wheel
 	with pytest.raises(RuntimeError, match="error: subprocess-exited-with-error"):
-		deps = PipResolver.gather(
+		PipResolver.gather(
 			skipDependencies, extras=set(), groups=set(), requirementsPath=requirementsPath
 		)
 

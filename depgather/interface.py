@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from abc import ABC
+from abc import ABC, abstractmethod
 from pathlib import Path
 
 from packaging.requirements import Requirement
@@ -10,6 +10,7 @@ from packaging.requirements import Requirement
 
 class DepGatherInterface(ABC):
 	@staticmethod
+	@abstractmethod
 	def gather(
 		skipDependencies: set[str],
 		groups: set[str],
@@ -17,4 +18,5 @@ class DepGatherInterface(ABC):
 		requirementsPath: Path,
 		base_index_url: str = "https://pypi.org",
 	) -> set[Requirement]:
-		NotImplementedError("This is the interface, call from an implemented ")
+		msg = "This is the interface, call from an implemented "
+		raise NotImplementedError(msg)

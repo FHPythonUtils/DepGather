@@ -79,7 +79,7 @@ uv run python3 -m basedpyright -p .
 Testing
 
 ```sh
-uv run pytest
+uv run python3 -m pytest
 ```
 
 Alternatively use `tox` to run tests over a range of python versions

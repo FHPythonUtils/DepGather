@@ -23,12 +23,11 @@ class PipResolver(DepGatherInterface):
 		base_index_url: str = "https://pypi.org/simple",
 	) -> set[Requirement]:
 		if not requirementsPath.exists():
-			raise RuntimeError(
-				f"Could not find specification of requirements ({requirementsPath})."
-			)
+			msg = f"Could not find specification of requirements ({requirementsPath})."
+			raise RuntimeError(msg)
 		requirementsPathName = requirementsPath.as_posix()
 
-		if requirementsPathName.endswith(".lock") or requirementsPathName.endswith(".toml"):
+		if requirementsPathName.endswith((".lock", ".toml")):
 			msg = "pyproject toml, and lock files are not supported."
 			raise RuntimeError(msg)
 
@@ -52,7 +51,6 @@ class PipResolver(DepGatherInterface):
 
 			result = subprocess.run(
 				command,
-				# shell=True,
 				capture_output=True,
 				text=True,
 				check=False,
