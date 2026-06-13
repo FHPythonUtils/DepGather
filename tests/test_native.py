@@ -7,66 +7,27 @@ from tests.utils import assert_eq_packages, assert_in_packages, assert_not_in_pa
 
 THISDIR = Path(__file__).resolve().parent
 
+@pytest.mark.parametrize(
+	("lockfile", "extradelta"),
+	[
+		("examplepoetry.lock", {"pip", "uv", "pygments"}),
+		("exampleuv.lock", {"pip", "uv", "DEPGATHER"}),
+		("examplepylock.toml", {"DEPGATHER"}),
+	]
+)
+def test_lockfiles(lockfile: str, extradelta: set[str]) -> None:
+	"""This takes the minumal lockfiles from the following commands as applied to this library, the advantages here 
+	are a relatively minimal set of lockfiles that can be used to validate NativeInfer parsing, this is how we support 
+	lockfiles in depgather
 
-def test_poetrylock() -> None:
-	requirementsPath: Path = THISDIR / "data/examplepoetry.lock"
-	skipDependencies: set[str] = {"TOSKIP"}
-
-	deps = NativeInfer.gather(
-		skipDependencies=skipDependencies,
-		extras=set(),
-		groups=set(),
-		requirementsPath=requirementsPath,
-	)
-	assert len(deps) == 38
-
-	assert_eq_packages(
-		deps,
-		{
-			"APPDIRS",
-			"ATTRS",
-			"BOOLEAN-PY",
-			"CATTRS",
-			"CERTIFI",
-			"CHARSET-NORMALIZER",
-			"COLORAMA",
-			"CONFIGURATOR",
-			"COVERAGE",
-			"EXCEPTIONGROUP",
-			"IDNA",
-			"IMPORTLIB-METADATA",
-			"INICONFIG",
-			"LICENSE-EXPRESSION",
-			"LOGURU",
-			"MARKDOWN",
-			"MARKDOWN-IT-PY",
-			"MDURL",
-			"PACKAGING",
-			"PLATFORMDIRS",
-			"PLUGGY",
-			"PYGMENTS",
-			"PYTEST",
-			"PYTEST-LOGURU",
-			"REQUESTS",
-			"REQUESTS-CACHE",
-			"REQUIREMENTS-PARSER",
-			"RICH",
-			"RUFF",
-			"TOMLI",
-			"TYPING-EXTENSIONS",
-			"URL-NORMALIZE",
-			"URLLIB3",
-			"UV",
-			"WIN32-SETCTIME",
-			"ZIPP",
-			"BASEDPYRIGHT",
-			"NODEJS-WHEEL-BINARIES",
-		},
-	)
+	The commands to generate these files are as follows:
+	uvx poetry lock
+	uv export --format pylock.toml > pylock
+	uv sync
+	"""
 
 
-def test_uvlock() -> None:
-	requirementsPath: Path = THISDIR / "data/exampleuv.lock"
+	requirementsPath: Path = THISDIR / "data" / lockfile
 	skipDependencies: set[str] = {"TOSKIP"}
 
 	deps = NativeInfer.gather(
@@ -76,53 +37,15 @@ def test_uvlock() -> None:
 		requirementsPath=requirementsPath,
 	)
 
-	assert len(deps) == 40
+	expected = {'BASEDPYRIGHT', 'COLORAMA', 'COVERAGE', 'INICONFIG', 'NODEJS-WHEEL-BINARIES', 'PACKAGING', 'PLUGGY', 'PYTEST', 'REQUIREMENTS-PARSER', 'RUFF', 'TOMLI'}
+
+
+	assert len(deps) == len(expected) + len(extradelta)
 
 	assert_eq_packages(
-		deps,
-		{
-			"APPDIRS",
-			"ATTRS",
-			"BOOLEAN-PY",
-			"CATTRS",
-			"CERTIFI",
-			"CHARSET-NORMALIZER",
-			"COLORAMA",
-			"CONFIGURATOR",
-			"COVERAGE",
-			"DEPGATHER",
-			"EXCEPTIONGROUP",
-			"IDNA",
-			"IMPORTLIB-METADATA",
-			"INICONFIG",
-			"LICENSE-EXPRESSION",
-			"LOGURU",
-			"MARKDOWN",
-			"MARKDOWN-IT-PY",
-			"MDURL",
-			"PACKAGING",
-			"PLATFORMDIRS",
-			"PLUGGY",
-			"PYGMENTS",
-			"PYTEST",
-			"PYTEST-LOGURU",
-			"REQUESTS",
-			"REQUESTS-CACHE",
-			"REQUIREMENTS-PARSER",
-			"RICH",
-			"RUFF",
-			"SETUPTOOLS",
-			"SIX",
-			"TOMLI",
-			"TYPES-SETUPTOOLS",
-			"TYPING-EXTENSIONS",
-			"URL-NORMALIZE",
-			"URLLIB3",
-			"UV",
-			"WIN32-SETCTIME",
-			"ZIPP",
-		},
+		deps, expected | extradelta
 	)
+
 
 
 @pytest.mark.skip("broken :(")

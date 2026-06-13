@@ -97,9 +97,13 @@ class NativeInferState:
 	def gather_lock_requirements(
 		self,
 		pyproject: dict[str, Any],
+		pakagekey: str = "package"
 	) -> bool:
-		for pkg in pyproject["package"]:
-			self.appendRequirement(f"{pkg['name']}=={pkg['version']}")
+		for pkg in pyproject[pakagekey]:
+			if pkg.get("version"):
+				self.appendRequirement(f"{pkg['name']}=={pkg['version']}")
+			else:
+				self.appendRequirement(pkg['name'])
 
 		return True
 
@@ -195,6 +199,10 @@ class NativeInfer(DepGatherInterface):
 			pyproject = tomli.loads(requirementsPath.read_text("utf-8"))
 			if pyproject.get("package") is not None and state.gather_lock_requirements(
 				pyproject=pyproject,
+			):
+				return state.reqs
+			if pyproject.get("packages") is not None and state.gather_lock_requirements(
+				pyproject=pyproject, pakagekey="packages"
 			):
 				return state.reqs
 

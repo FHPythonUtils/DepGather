@@ -1,6 +1,6 @@
 [project]
 name = "depgather"
-version = "0.2.0"
+version = "0.3.0"
 description = "Get a list of deps given a pyproject.toml, uv.lock, requirements.txt etc"
 authors = [{ name = "FredHappyface" }]
 requires-python = ">=3.12"
@@ -80,7 +80,7 @@ line-ending = "lf"
 [tool.basedpyright]
 venvPath = "."
 venv = ".venv"
-
+typeCheckingMode = "standard"
 
 [tool.tox]
 legacy_tox_ini = """
