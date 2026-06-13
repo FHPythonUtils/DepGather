@@ -1,10 +1,85 @@
 import contextlib
 from pathlib import Path
 
+import pytest
+
 from depgather.uv_cli import UvCli
 from tests.utils import assert_eq_packages, assert_in_packages, assert_not_in_packages
 
 THISDIR = Path(__file__).resolve().parent
+
+
+@pytest.mark.parametrize(
+	("lockfile"),
+	[
+		("poetry.lock"),
+		("uv_.lock"),
+		("pylock.toml"),
+	],
+)
+def test_lockfiles(lockfile: str) -> None:
+	"""This takes the minimal lockfiles from the following commands as applied to this library.
+
+	The commands to generate these files are as follows:
+	uvx poetry lock
+	uv export --format pylock.toml > pylock
+	uv sync
+	"""
+
+	requirementsPath: Path = THISDIR / "data/example1" / lockfile
+	skipDependencies: set[str] = {"TOSKIP"}
+
+	with pytest.raises(RuntimeError, match="lock files are not supported"):
+		UvCli.gather(
+			skipDependencies=skipDependencies,
+			extras=set(),
+			groups=set(),
+			requirementsPath=requirementsPath,
+		)
+
+
+@pytest.mark.parametrize(
+	("requirements"),
+	[
+		("requirements.in"),
+		("requirements.txt"),
+		("pyproject.toml"),
+		("setup.py"),
+		("setup.cfg"),
+	],
+)
+def test_example1(requirements: str) -> None:
+	"""This takes the minumal requirements from as applied to depgather (with the dev group,
+	no extras)
+	"""
+
+	requirementsPath: Path = THISDIR / "data/example1" / requirements
+	skipDependencies: set[str] = {"TOSKIP"}
+
+	deps = UvCli.gather(
+		requirementsPath=requirementsPath,
+		skipDependencies=skipDependencies,
+		extras=set(),
+		groups={"dev"},
+	)
+
+	expected = {
+		"basedpyright",
+		# "colorama", # windows only requirement
+		"coverage",
+		"iniconfig",
+		"nodejs-wheel-binaries",
+		"packaging",
+		"pluggy",
+		"pytest",
+		"requirements-parser",
+		"ruff",
+		"tomli",
+		"pygments",  # seems inconsistent with my own uv.lock ?
+	}
+
+	assert len(deps) == len(expected)
+	assert_eq_packages(deps, expected)
 
 
 def test_PEP631() -> None:
@@ -13,42 +88,42 @@ def test_PEP631() -> None:
 	skipDependencies: set[str] = {"TOSKIP"}
 
 	deps = UvCli.gather(
+		requirementsPath=requirementsPath,
 		skipDependencies=skipDependencies,
 		extras=extras,
 		groups=set(),
-		requirementsPath=requirementsPath,
 	)
 
 	assert_eq_packages(
 		deps,
 		{
-			"DOCKERPTY",
-			"ATTRS",
-			"JSONSCHEMA",
-			"PYYAML",
-			"PYSOCKS",
-			"CERTIFI",
-			"DOCKER",
-			"TEXTTABLE",
-			"DOCOPT",
-			"PARAMIKO",
-			"IDNA",
-			"CACHED-PROPERTY",
-			"DISTRO",
-			"CHARSET-NORMALIZER",
-			"URLLIB3",
-			"WEBSOCKET-CLIENT",
-			"REQUESTS",
-			"PYTHON-DOTENV",
-			"CFFI",
-			"PYNACL",
-			"BCRYPT",
-			"SIX",
-			"PYCPARSER",
-			"CRYPTOGRAPHY",
-			"PYRSISTENT",
-			"SETUPTOOLS",
-			"INVOKE",
+			"dockerpty",
+			"attrs",
+			"jsonschema",
+			"pyyaml",
+			"pysocks",
+			"certifi",
+			"docker",
+			"texttable",
+			"docopt",
+			"paramiko",
+			"idna",
+			"cached-property",
+			"distro",
+			"charset-normalizer",
+			"urllib3",
+			"websocket-client",
+			"requests",
+			"python-dotenv",
+			"cffi",
+			"pynacl",
+			"bcrypt",
+			"six",
+			"pycparser",
+			"cryptography",
+			"pyrsistent",
+			"setuptools",
+			"invoke",
 		},
 	)
 
@@ -58,29 +133,32 @@ def test_requirements() -> None:
 	skipDependencies: set[str] = {"TOSKIP"}
 
 	deps = UvCli.gather(
-		skipDependencies, extras=set(), groups=set(), requirementsPath=requirementsPath
+		skipDependencies=skipDependencies,
+		extras=set(),
+		groups=set(),
+		requirementsPath=requirementsPath,
 	)
 
 	assert_eq_packages(
 		deps,
 		{
-			"NUMPY",
-			"ODFPY",
-			"OPENPYXL",
-			"PANDAS",
-			"SIX",
-			"DEFUSEDXML",
-			"ET-XMLFILE",
-			"PYTHON-DATEUTIL",
-			"PYTZ",
-			"PYXLSB",
-			"TZDATA",
-			"XLRD",
-			"XLSXWRITER",
+			"numpy",
+			"odfpy",
+			"openpyxl",
+			"pandas",
+			"six",
+			"defusedxml",
+			"et-xmlfile",
+			"python-dateutil",
+			"pytz",
+			"pyxlsb",
+			"tzdata",
+			"xlrd",
+			"xlsxwriter",
 		},
 	)
-	assert_in_packages(deps, "OPENPYXL")
-	assert_not_in_packages(deps, "XARRAY")
+	assert_in_packages(deps, "openpyxl")
+	assert_not_in_packages(deps, "xarray")
 	# xarray is an optional dependency of pandas associated with 'computation' key that is not
 	# tracked in test_requirements.txt
 
@@ -90,10 +168,13 @@ def test_requirements_with_hashes() -> None:
 	skipDependencies = {"TOSKIP"}
 
 	deps = UvCli.gather(
-		skipDependencies, extras=set(), groups=set(), requirementsPath=requirementsPath
+		skipDependencies=skipDependencies,
+		extras=set(),
+		groups=set(),
+		requirementsPath=requirementsPath,
 	)
-	assert_eq_packages(deps, {"PACKAGING"})
-	assert_not_in_packages(deps, "TOSKIP")
+	assert_eq_packages(deps, {"packaging"})
+	assert_not_in_packages(deps, "toskip")
 
 
 def test_issue_62() -> None:
@@ -108,39 +189,39 @@ def test_issue_62() -> None:
 	assert_eq_packages(
 		deps,
 		{
-			"CERTIFI",
-			"CHARSET-NORMALIZER",
-			"DEPRECATED",
-			"EARTHENGINE-API",
-			"GOOGLE-API-CORE",
-			"GOOGLE-API-PYTHON-CLIENT",
-			"GOOGLE-AUTH",
-			"GOOGLE-AUTH-HTTPLIB2",
-			"GOOGLE-CLOUD-CORE",
-			"GOOGLE-CLOUD-STORAGE",
-			"GOOGLE-CRC32C",
-			"GOOGLE-RESUMABLE-MEDIA",
-			"GOOGLEAPIS-COMMON-PROTOS",
-			"HTTPLIB2",
-			"IDNA",
-			"NUMPY",
-			"PANDAS",
-			"PROTO-PLUS",
-			"PROTOBUF",
-			"PYARROW",
-			"PYASN1",
-			"PYASN1-MODULES",
-			"PYPARSING",
-			"PYTHON-DATEUTIL",
-			"PYTZ",
-			"REQUESTS",
-			"SIX",
-			"URITEMPLATE",
-			"URLLIB3",
-			"WRAPT",
-			"CFFI",
-			"CRYPTOGRAPHY",
-			"PYCPARSER",
+			"certifi",
+			"charset-normalizer",
+			"deprecated",
+			"earthengine-api",
+			"google-api-core",
+			"google-api-python-client",
+			"google-auth",
+			"google-auth-httplib2",
+			"google-cloud-core",
+			"google-cloud-storage",
+			"google-crc32c",
+			"google-resumable-media",
+			"googleapis-common-protos",
+			"httplib2",
+			"idna",
+			"numpy",
+			"pandas",
+			"proto-plus",
+			"protobuf",
+			"pyarrow",
+			"pyasn1",
+			"pyasn1-modules",
+			"pyparsing",
+			"python-dateutil",
+			"pytz",
+			"requests",
+			"six",
+			"uritemplate",
+			"urllib3",
+			"wrapt",
+			"cffi",
+			"cryptography",
+			"pycparser",
 		},
 	)
 
@@ -168,19 +249,19 @@ def test_issue_84() -> None:
 	assert_eq_packages(
 		deps,
 		{
-			"AMQP",
-			"BILLIARD",
-			"CELERY",
-			"CLICK",
-			"CLICK-DIDYOUMEAN",
-			"CLICK-PLUGINS",
-			"CLICK-REPL",
-			"KOMBU",
-			"PROMPT-TOOLKIT",
-			"PYTZ",
-			"TZDATA",
-			"VINE",
-			"WCWIDTH",
-			"Packaging",
+			"amqp",
+			"billiard",
+			"celery",
+			"click",
+			"click-didyoumean",
+			"click-plugins",
+			"click-repl",
+			"kombu",
+			"prompt-toolkit",
+			"pytz",
+			"tzdata",
+			"vine",
+			"wcwidth",
+			"packaging",
 		},
 	)

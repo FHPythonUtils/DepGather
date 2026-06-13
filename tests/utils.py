@@ -1,9 +1,10 @@
 from packaging.requirements import Requirement
+from packaging.utils import canonicalize_name
 
 
 def assert_eq_packages(a: set[Requirement], b: set[str]) -> None:
-	lhs = {x.name.upper() for x in a}
-	rhs = {x.upper() for x in b}
+	lhs = {canonicalize_name(x.name) for x in a}
+	rhs = {canonicalize_name(x) for x in b}
 
 	missing = rhs - lhs
 	extra = lhs - rhs
@@ -14,10 +15,10 @@ def assert_eq_packages(a: set[Requirement], b: set[str]) -> None:
 
 
 def assert_not_in_packages(a: set[Requirement], b: str) -> None:
-	reqs = {d.name.upper() for d in a}
-	assert b.upper() not in reqs
+	reqs = {canonicalize_name(d.name) for d in a}
+	assert canonicalize_name(b) not in reqs
 
 
 def assert_in_packages(a: set[Requirement], b: str) -> None:
-	reqs = {d.name.upper() for d in a}
-	assert b.upper() in reqs
+	reqs = {canonicalize_name(d.name) for d in a}
+	assert canonicalize_name(b) in reqs

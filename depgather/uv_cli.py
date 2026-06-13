@@ -1,37 +1,51 @@
-"""Use uv to get packages from project/ requirements.txt."""
+"""
+Define UvCli with a static gather method, which takes a requirementsPath.
+
+In addition to a series of optional arguments for gathering requirements/ deps based on the
+requirementsPath.
+
+Supports:
+- pep631 pyproject.toml
+- requirements.in
+- requirements.txt
+- setup.py
+- script.py
+
+"""
 
 from __future__ import annotations
 
 import shutil
 import subprocess
 import tempfile
+from collections.abc import Iterable
 from pathlib import Path
 from typing import override
 
 import requirements
 from packaging.requirements import Requirement
+from packaging.utils import canonicalize_name
 
 from depgather.interface import DepGatherInterface
+from depgather.sanitise import sanitise
 
 
 class UvCli(DepGatherInterface):
 	@staticmethod
 	@override
 	def gather(
-		skipDependencies: set[str],
-		groups: set[str],
-		extras: set[str],
 		requirementsPath: Path,
+		skipDependencies: Iterable[str] = (),
+		groups: Iterable[str] = (),
+		extras: Iterable[str] = (),
 		base_index_url: str = "https://pypi.org",
 	) -> set[Requirement]:
-		if not requirementsPath.exists():
-			msg = f"Could not find specification of requirements ({requirementsPath})."
-			raise RuntimeError(msg)
+		sanitise(requirementsPath, skipDependencies, groups, extras, base_index_url)
 
 		requirementsPathName = requirementsPath.as_posix()
 
-		if requirementsPathName.endswith(".lock"):
-			msg = "Ironically uv lock are not supported, use `NativeInfer.gather`."
+		if requirementsPathName.endswith((".lock", "lock.toml")):
+			msg = "lock files are not supported, use `NativeInfer.gather`."
 			raise RuntimeError(msg)
 
 		if not requirementsPathName.endswith("pyproject.toml") and requirementsPathName.endswith(
@@ -71,10 +85,10 @@ class UvCli(DepGatherInterface):
 		# outputs a requirements.txt file
 		reqs = requirements.parse(result.stdout)
 
-		skipDependenciesUpper = [x.upper() for x in skipDependencies]
+		skipDependencies_c14n = [canonicalize_name(x) for x in skipDependencies]
 
 		return {
 			Requirement(x.line)
 			for x in reqs
-			if x.name and x.name.upper() not in skipDependenciesUpper
+			if x.name and canonicalize_name(x.name) not in skipDependencies_c14n
 		}

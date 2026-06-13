@@ -16,7 +16,10 @@ def test_requirements() -> None:
 	# ERROR: Failed to build 'pandas' when getting requirements to build wheel
 	with pytest.raises(RuntimeError, match="error: subprocess-exited-with-error"):
 		PipResolver.gather(
-			skipDependencies, extras=set(), groups=set(), requirementsPath=requirementsPath
+			skipDependencies=skipDependencies,
+			extras=set(),
+			groups=set(),
+			requirementsPath=requirementsPath,
 		)
 
 
@@ -25,7 +28,10 @@ def test_requirements_with_hashes() -> None:
 	skipDependencies = {"TOSKIP"}
 
 	deps = PipResolver.gather(
-		skipDependencies, extras=set(), groups=set(), requirementsPath=requirementsPath
+		skipDependencies=skipDependencies,
+		extras=set(),
+		groups=set(),
+		requirementsPath=requirementsPath,
 	)
 	assert_eq_packages(deps, {"PACKAGING"})
 	assert_not_in_packages(deps, "TOSKIP")
@@ -41,19 +47,19 @@ def test_issue_84() -> None:
 	assert_eq_packages(
 		deps,
 		{
-			"AMQP",
-			"BILLIARD",
-			"CELERY",
-			"CLICK",
-			"CLICK-DIDYOUMEAN",
-			"CLICK-PLUGINS",
-			"CLICK-REPL",
-			"KOMBU",
-			"PROMPT-TOOLKIT",
-			"PYTZ",
-			"TZDATA",
-			"VINE",
-			"WCWIDTH",
-			"Packaging",
+			"amqp",
+			"billiard",
+			"celery",
+			"click",
+			"click-didyoumean",
+			"click-plugins",
+			"click-repl",
+			"kombu",
+			"prompt-toolkit",
+			"pytz",
+			"tzdata",
+			"vine",
+			"wcwidth",
+			"packaging",
 		},
 	)
