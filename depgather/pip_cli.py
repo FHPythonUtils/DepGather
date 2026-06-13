@@ -39,6 +39,7 @@ class PipResolver(DepGatherInterface):
 			command = [
 				"pip",
 				"install",
+				"--no-color",
 				"--dry-run",
 				"--quiet",
 				"--report",

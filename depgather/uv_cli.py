@@ -46,6 +46,8 @@ class UvCli(DepGatherInterface):
 			"uv",
 			"pip",
 			"compile",
+			"--color",
+			"never",
 			"--index",
 			base_index_url,
 			requirementsPathName,
