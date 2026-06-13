@@ -91,6 +91,7 @@ def test_example1(requirements: str) -> None:
 		"requirements-parser",
 		"ruff",
 		"tomli",
+		"pygments",
 	}
 
 	assert len(deps) == len(expected)
