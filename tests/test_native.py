@@ -92,7 +92,7 @@ def test_example1(requirements: str) -> None:
 		"requirements-parser",
 		"ruff",
 		"tomli",
-		# "pygments", # part of pytest[dev] which we are not using 
+		"pygments", # pygments>=2.7.2; extra == "dev" local; pygments>=2.7.2 in ci/cd
 	}
 
 	assert len(deps) == len(expected)
