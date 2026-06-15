@@ -27,7 +27,7 @@ from packaging.requirements import Requirement
 from packaging.utils import canonicalize_name
 
 from depgather.interface import DepGatherInterface
-from depgather.sanitise import sanitise
+from depgather.utils import c14n_reqs, sanitize
 
 
 class UvCli(DepGatherInterface):
@@ -40,7 +40,7 @@ class UvCli(DepGatherInterface):
 		extras: Iterable[str] = (),
 		base_index_url: str = "https://pypi.org",
 	) -> set[Requirement]:
-		sanitise(requirementsPath, skipDependencies, groups, extras, base_index_url)
+		sanitize(requirementsPath, skipDependencies, groups, extras, base_index_url)
 
 		requirementsPathName = requirementsPath.as_posix()
 
@@ -87,8 +87,9 @@ class UvCli(DepGatherInterface):
 
 		skipDependencies_c14n = [canonicalize_name(x) for x in skipDependencies]
 
-		return {
+		_requirements = {
 			Requirement(x.line)
 			for x in reqs
 			if x.name and canonicalize_name(x.name) not in skipDependencies_c14n
 		}
+		return c14n_reqs(_requirements)

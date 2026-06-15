@@ -1,6 +1,6 @@
 [project]
 name = "depgather"
-version = "0.3.0"
+version = "0.4.0"
 description = "Get a list of deps given a pyproject.toml, uv.lock, requirements.txt etc"
 authors = [{ name = "FredHappyface" }]
 requires-python = ">=3.12"
@@ -17,7 +17,11 @@ classifiers = [
 	"Topic :: Software Development :: Libraries :: Python Modules",
 	"Topic :: Utilities",
 ]
-dependencies = ["requirements-parser>=0.13.0", "tomli>=2.2.1"]
+dependencies = [
+    "loguru>=0.7.3",
+    "requirements-parser>=0.13.0",
+    "tomli>=2.2.1",
+]
 
 [project.optional-dependencies]
 uv = ["uv>=0.6.8"]

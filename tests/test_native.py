@@ -3,10 +3,11 @@ from pathlib import Path
 import pytest
 
 from depgather.native import NativeInfer
+from depgather.utils import enable_verbose
 from tests.utils import assert_eq_packages, assert_in_packages, assert_not_in_packages
 
 THISDIR = Path(__file__).resolve().parent
-
+enable_verbose()
 
 @pytest.mark.parametrize(
 	("lockfile", "extradelta"),
@@ -91,7 +92,7 @@ def test_example1(requirements: str) -> None:
 		"requirements-parser",
 		"ruff",
 		"tomli",
-		"pygments",
+		# "pygments", # part of pytest[dev] which we are not using 
 	}
 
 	assert len(deps) == len(expected)
@@ -197,7 +198,7 @@ def test_requirements_with_hashes() -> None:
 
 @pytest.mark.skip("broken :(")
 def test_issue_62() -> None:
-	requirementsPath = THISDIR / "data/issue_62.toml"
+	requirementsPath = THISDIR / "data/issue/lc_62.toml"
 
 	deps = NativeInfer.gather(
 		skipDependencies=set(), extras=set(), groups=set(), requirementsPath=requirementsPath
@@ -246,7 +247,7 @@ def test_issue_62() -> None:
 
 
 def test_issue_81() -> None:
-	requirementsPath = THISDIR / "data/issue_81.txt"
+	requirementsPath = THISDIR / "data/issue/lc_81.txt"
 	deps = NativeInfer.gather(
 		skipDependencies=set(), extras=set(), groups=set(), requirementsPath=requirementsPath
 	)
@@ -475,7 +476,7 @@ def test_issue_81() -> None:
 
 @pytest.mark.skip("broken :(")
 def test_issue_84() -> None:
-	requirementsPath = THISDIR / "data/issue_84.txt"
+	requirementsPath = THISDIR / "data/issue/lc_84.txt"
 
 	deps = NativeInfer.gather(
 		skipDependencies=set(), extras=set(), groups=set(), requirementsPath=requirementsPath

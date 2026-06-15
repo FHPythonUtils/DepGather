@@ -178,7 +178,7 @@ def test_requirements_with_hashes() -> None:
 
 
 def test_issue_62() -> None:
-	requirementsPath = THISDIR / "data/issue_62.toml"
+	requirementsPath = THISDIR / "data/issue/lc_62.toml"
 
 	deps = UvCli.gather(
 		skipDependencies=set(), extras=set(), groups=set(), requirementsPath=requirementsPath
@@ -227,7 +227,7 @@ def test_issue_62() -> None:
 
 
 def test_issue_81() -> None:
-	requirementsPath = THISDIR / "data/issue_81.txt"
+	requirementsPath = THISDIR / "data/issue/lc_81.txt"
 	with contextlib.suppress(Exception):
 		_deps = UvCli.gather(
 			skipDependencies=set(), extras=set(), groups=set(), requirementsPath=requirementsPath
@@ -240,7 +240,7 @@ def test_issue_81() -> None:
 
 
 def test_issue_84() -> None:
-	requirementsPath = THISDIR / "data/issue_84.txt"
+	requirementsPath = THISDIR / "data/issue/lc_84.txt"
 
 	deps = UvCli.gather(
 		skipDependencies=set(), extras=set(), groups=set(), requirementsPath=requirementsPath

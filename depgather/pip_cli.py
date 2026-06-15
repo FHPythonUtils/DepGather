@@ -18,6 +18,7 @@ from packaging.requirements import Requirement
 from packaging.utils import canonicalize_name
 
 from depgather.interface import DepGatherInterface
+from depgather.utils import c14n_reqs, sanitize
 
 
 class PipResolver(DepGatherInterface):
@@ -49,9 +50,8 @@ class PipResolver(DepGatherInterface):
 		:return set[Requirement]: set of requirements/ deps based on the requirementsPath and
 			optional args
 		"""
-		if not requirementsPath.exists():
-			msg = f"Could not find specification of requirements ({requirementsPath})."
-			raise RuntimeError(msg)
+		sanitize(requirementsPath, skipDependencies, groups, extras, base_index_url)
+
 		requirementsPathName = requirementsPath.as_posix()
 
 		if requirementsPathName.endswith((".lock", ".toml")):
@@ -89,10 +89,12 @@ class PipResolver(DepGatherInterface):
 
 			report = json.loads(report_path.read_text())
 
-			return {
+			_requirements = {
 				Requirement(
 					f"{canonicalize_name(pkg['metadata']['name'])}=={pkg['metadata']['version']}"
 				)
 				for pkg in report.get("install", [])
 				if canonicalize_name(pkg["metadata"]["name"]) not in skip_names
 			}
+			return c14n_reqs(_requirements)
+

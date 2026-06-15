@@ -34,11 +34,10 @@ jobs:
           curl -LsSf https://astral.sh/uv/install.sh | sh
 
       - name: Install dependencies
-        run: uv sync
-
-      - name: Run pytest
-        run: uv run pytest tests -vv
-
+        run: uv sync --all-extras # make sure uv, and pip exist for tests
       - name: Run ruff
         run: uv run ruff check --output-format=github
         continue-on-error: true
+      - name: Run pytest
+        run: uv run pytest tests -vv
+

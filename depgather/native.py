@@ -19,14 +19,14 @@ from packaging.requirements import Requirement
 from packaging.utils import canonicalize_name
 
 from depgather.interface import DepGatherInterface
+from depgather.utils import c14n_reqs, conditional_log, sanitize
 
 
 class NativeInferState:
 	def __init__(self) -> None:
-		self.reqs: set[Requirement] = set()
-		self.enabledExtras: set[str] = set()
+		self.reqs: dict[str, Requirement] = {}
 
-	def resolveWithExtras(
+	def resolve(
 		self,
 		skipDependencies: Iterable[str],
 	) -> set[Requirement]:
@@ -34,45 +34,41 @@ class NativeInferState:
 			canonicalize_name("PYTHON"),
 			*(canonicalize_name(d) for d in skipDependencies),
 		}
-		reqs: set[Requirement] = {req for req in self.reqs if canonicalize_name(req.name) not in skip_names}
-		requirementsWithDeps: set[Requirement] = set(reqs)
+		reqs: dict[str, Requirement] = {
+			name: req
+			for name, req in self.reqs.items()
+			if canonicalize_name(req.name) not in skip_names
+		}
 
-		for requirement in reqs:
+		for requirement in reqs.copy().values():
+			conditional_log(f"get deps for {requirement=}")
 			try:
 				pkgMetadata: PackageMetadata = metadata.metadata(requirement.name)
 			except metadata.PackageNotFoundError:
 				continue
 
 			for dependency_str in pkgMetadata.get_all("Requires-Dist") or []:
-				dependency = Requirement(dependency_str)
+				conditional_log(f"... checking {dependency_str}")
+				dependency: Requirement = Requirement(dependency_str)
 
-				# Ignore dependencies that have already been discovered.
+				# Ignore dependencies
 				if canonicalize_name(dependency.name) in skip_names:
 					continue
 
 				marker = dependency.marker
-
+				depextras: set[str] = dependency.extras | {""}
+				conditional_log(f"... with extras={depextras}")
 				if marker is not None:
-					# First try enabled extras
-					if self.enabledExtras:
-						matched = any(
-							marker.evaluate({"extra": extra}) for extra in self.enabledExtras
-						)
-
-						# If the marker only matches an extra we didn't enable,
-						# skip it.
-						if not matched and not marker.evaluate({"extra": ""}):
-							continue
-
-					elif not marker.evaluate({"extra": ""}):
+					matched = any(
+						marker.evaluate({"extra": extra}) for extra in depextras
+					)
+					if not matched:
 						continue
 
-				if canonicalize_name(dependency.name) not in (
-					canonicalize_name(x.name) for x in requirementsWithDeps
-				):
-					requirementsWithDeps.add(dependency)
+				insertRequirement(reqs, dependency)
 
-		return requirementsWithDeps
+
+		return set(reqs.values())
 
 	def gather_infer(
 		self,
@@ -109,7 +105,7 @@ class NativeInferState:
 				cfg.read(requirementsPath)
 				return self.gather_setupcfg(cfg, groups)
 			except ParsingError:
-				# Ohterwise its requirements.txt
+				# Otherwise its requirements.txt
 				return self.gather_requirements(
 					requirementsPath=requirementsPath,
 				)
@@ -219,12 +215,14 @@ class NativeInferState:
 		return True
 
 	def appendRequirement(self, req: str) -> None:
-		requirement = Requirement(req)
-		if canonicalize_name(requirement.name) not in (
-			canonicalize_name(x.name) for x in self.reqs
-		):
-			self.reqs.add(requirement)
+		requirement: Requirement = Requirement(req)
+		insertRequirement(map_=self.reqs, requirement=requirement)
 
+def insertRequirement(map_: dict[str, Requirement], requirement: Requirement) -> None:
+	name = canonicalize_name(requirement.name)
+	requirement.name = name
+	conditional_log(f"adding {requirement.name}")
+	map_[name] = requirement
 
 class NativeInfer(DepGatherInterface):
 	@staticmethod
@@ -238,6 +236,10 @@ class NativeInfer(DepGatherInterface):
 	) -> set[Requirement]:
 		"""
 		Static getter method, used to gather requirements/ deps based on the requirementsPath.
+
+		Note this depends entirely on the local environment to identify transitive deps, and this 
+		only goes one level deep. NativeInfer.gather is only recommended for lockfiles, for project 
+		files, it is preferred to use uv/pip etc.
 
 		:param Path requirementsPath: path to some requirements file. e.g. requirements.txt;
 			pyproject.toml; uv.lock etc
@@ -255,6 +257,8 @@ class NativeInfer(DepGatherInterface):
 		:return set[Requirement]: set of requirements/ deps based on the requirementsPath and
 			optional args
 		"""
+		sanitize(requirementsPath, skipDependencies, groups, extras, base_index_url)
+
 		state: NativeInferState = NativeInferState()
 
 		# when using a lockfile then gatherinfer only
@@ -264,11 +268,12 @@ class NativeInfer(DepGatherInterface):
 			if pyproject.get("package") is not None and state.gather_lock_requirements(
 				pyproject=pyproject,
 			):
-				return state.reqs
+				return c14n_reqs(state.reqs.values())
+
 			if pyproject.get("packages") is not None and state.gather_lock_requirements(
 				pyproject=pyproject, pakagekey="packages"
 			):
-				return state.reqs
+				return c14n_reqs(state.reqs.values())
 
 		except tomli.TOMLDecodeError:
 			pass
@@ -276,4 +281,4 @@ class NativeInfer(DepGatherInterface):
 		if not state.gather_infer(groups, extras, requirementsPath):
 			msg = f"Unable to find requirements for ({requirementsPath})."
 			raise RuntimeError(msg)
-		return state.resolveWithExtras(skipDependencies)
+		return c14n_reqs(state.resolve(skipDependencies))

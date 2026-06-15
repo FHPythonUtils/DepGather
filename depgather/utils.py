@@ -1,10 +1,15 @@
+import os
 import re
 from collections.abc import Iterable
 from itertools import chain
 from pathlib import Path
 from urllib.parse import urlparse
 
-NAME_RE = re.compile(r"^[A-Za-z0-9_.-]+$")
+from loguru import logger
+from packaging.requirements import Requirement
+from packaging.utils import canonicalize_name
+
+NAME_RE = re.compile(r"^(?!-)[A-Za-z0-9_.-]+$")
 
 SUPPORTED_SUFFIXES = {
 	".in",
@@ -15,8 +20,10 @@ SUPPORTED_SUFFIXES = {
 	".lock",
 }
 
+DEPGATHER_VERBOSE: bool = bool(os.environ.get("DEPGATHER_VERBOSE"))
 
-def sanitise(
+
+def sanitize(
 	requirementsPath: Path,
 	skipDependencies: Iterable[str] = (),
 	groups: Iterable[str] = (),
@@ -44,10 +51,29 @@ def sanitise(
 
 	parsed = urlparse(base_index_url)
 
-	if parsed.scheme != "https":
-		msg = f"index URL must use HTTPS: {base_index_url!r}"
+	if not parsed.scheme.startswith("http"):
+		msg = f"index URL must use HTTP(S): {base_index_url!r}"
 		raise RuntimeError(msg)
 
 	if not parsed.hostname:
 		msg = f"invalid index URL: {base_index_url!r}"
 		raise RuntimeError(msg)
+
+
+def c14n_reqs(requirements: Iterable[Requirement]) -> set[Requirement]:
+	for req in requirements:
+		req.name = canonicalize_name(req.name)
+
+	return set(requirements)
+
+
+def enable_verbose() -> None:
+	"""Mutate a global constant in the event a calling lib opts in for debug purposes."""
+	global DEPGATHER_VERBOSE  # noqa: PLW0603
+	DEPGATHER_VERBOSE = True
+
+
+def conditional_log(msg: str) -> None:
+	"""Log info if DEPGATHER_VERBOSE is set (env, or explicit opt in via enable_verbose)."""
+	if DEPGATHER_VERBOSE:
+		logger.info(msg)
