@@ -59,14 +59,11 @@ class NativeInferState:
 				depextras: set[str] = dependency.extras | {""}
 				conditional_log(f"... with extras={depextras}")
 				if marker is not None:
-					matched = any(
-						marker.evaluate({"extra": extra}) for extra in depextras
-					)
+					matched = any(marker.evaluate({"extra": extra}) for extra in depextras)
 					if not matched:
 						continue
 
 				insertRequirement(reqs, dependency)
-
 
 		return set(reqs.values())
 
@@ -218,11 +215,13 @@ class NativeInferState:
 		requirement: Requirement = Requirement(req)
 		insertRequirement(map_=self.reqs, requirement=requirement)
 
+
 def insertRequirement(map_: dict[str, Requirement], requirement: Requirement) -> None:
 	name = canonicalize_name(requirement.name)
 	requirement.name = name
 	conditional_log(f"adding {requirement.name}")
 	map_[name] = requirement
+
 
 class NativeInfer(DepGatherInterface):
 	@staticmethod
@@ -237,8 +236,8 @@ class NativeInfer(DepGatherInterface):
 		"""
 		Static getter method, used to gather requirements/ deps based on the requirementsPath.
 
-		Note this depends entirely on the local environment to identify transitive deps, and this 
-		only goes one level deep. NativeInfer.gather is only recommended for lockfiles, for project 
+		Note this depends entirely on the local environment to identify transitive deps, and this
+		only goes one level deep. NativeInfer.gather is only recommended for lockfiles, for project
 		files, it is preferred to use uv/pip etc.
 
 		:param Path requirementsPath: path to some requirements file. e.g. requirements.txt;

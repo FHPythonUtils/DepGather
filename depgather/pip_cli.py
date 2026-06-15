@@ -8,7 +8,6 @@ requirementsPath.
 from __future__ import annotations
 
 import json
-import subprocess
 import tempfile
 from collections.abc import Iterable
 from pathlib import Path
@@ -18,7 +17,7 @@ from packaging.requirements import Requirement
 from packaging.utils import canonicalize_name
 
 from depgather.interface import DepGatherInterface
-from depgather.utils import c14n_reqs, sanitize
+from depgather.utils import c14n_reqs, sanitize, subprocess_run
 
 
 class PipResolver(DepGatherInterface):
@@ -77,12 +76,7 @@ class PipResolver(DepGatherInterface):
 				str(requirementsPath),
 			]
 
-			result = subprocess.run(
-				command,
-				capture_output=True,
-				text=True,
-				check=False,
-			)
+			result = subprocess_run(command)
 
 			if result.returncode != 0:
 				raise RuntimeError(result.stderr)
@@ -97,4 +91,3 @@ class PipResolver(DepGatherInterface):
 				if canonicalize_name(pkg["metadata"]["name"]) not in skip_names
 			}
 			return c14n_reqs(_requirements)
-

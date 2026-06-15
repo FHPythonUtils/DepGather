@@ -9,6 +9,14 @@ from tests.utils import assert_eq_packages, assert_in_packages, assert_not_in_pa
 THISDIR = Path(__file__).resolve().parent
 
 
+def test_file_not_exists() -> None:
+	requirementsPath: Path = THISDIR / "file_does_not_exist.toml"
+	with pytest.raises(RuntimeError):
+		UvCli.gather(
+			requirementsPath=requirementsPath,
+		)
+
+
 @pytest.mark.parametrize(
 	("lockfile"),
 	[

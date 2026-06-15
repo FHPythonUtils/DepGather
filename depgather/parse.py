@@ -1,15 +1,13 @@
-from typing import Any
-
-
 from collections.abc import Iterable
 from enum import StrEnum, auto
 from pathlib import Path
+from typing import Any
 
 from packaging.requirements import Requirement
 
-from depgather.utils import conditional_log
 from depgather.native import NativeInfer
 from depgather.pip_cli import PipResolver
+from depgather.utils import conditional_log
 from depgather.uv_cli import UvCli
 
 

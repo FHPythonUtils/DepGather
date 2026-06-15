@@ -1,14 +1,20 @@
-import contextlib
 from pathlib import Path
 
 import pytest
 
-from depgather.parse import gather, ResolverName
+from depgather.parse import ResolverName, gather
 from depgather.utils import enable_verbose
 
 THISDIR = Path(__file__).resolve().parent
 enable_verbose()
 
+
+def test_file_not_exists() -> None:
+	requirementsPath: Path = THISDIR / "file_does_not_exist.toml"
+	with pytest.raises(RuntimeError):
+		gather(
+			requirementsPath=requirementsPath,
+		)
 
 
 @pytest.mark.parametrize(
@@ -20,7 +26,6 @@ enable_verbose()
 	],
 )
 def test_lockfiles(resolvername: ResolverName) -> None:
-
 	requirementsPath: Path = THISDIR / "data/example1" / "pylock.toml"
 	skipDependencies: set[str] = {"TOSKIP"}
 
@@ -29,5 +34,5 @@ def test_lockfiles(resolvername: ResolverName) -> None:
 		extras=set(),
 		groups=set(),
 		requirementsPath=requirementsPath,
-		preferred_resolver= resolvername,
+		preferred_resolver=resolvername,
 	)

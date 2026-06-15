@@ -8,6 +8,14 @@ from tests.utils import assert_eq_packages, assert_not_in_packages
 THISDIR = Path(__file__).resolve().parent
 
 
+def test_file_not_exists() -> None:
+	requirementsPath: Path = THISDIR / "file_does_not_exist.toml"
+	with pytest.raises(RuntimeError):
+		PipResolver.gather(
+			requirementsPath=requirementsPath,
+		)
+
+
 def test_requirements() -> None:
 	requirementsPath: Path = THISDIR / "data/test_requirements.txt"
 	skipDependencies: set[str] = {"TOSKIP"}

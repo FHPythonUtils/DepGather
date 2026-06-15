@@ -16,7 +16,6 @@ Supports:
 from __future__ import annotations
 
 import shutil
-import subprocess
 import tempfile
 from collections.abc import Iterable
 from pathlib import Path
@@ -27,7 +26,7 @@ from packaging.requirements import Requirement
 from packaging.utils import canonicalize_name
 
 from depgather.interface import DepGatherInterface
-from depgather.utils import c14n_reqs, sanitize
+from depgather.utils import c14n_reqs, sanitize, subprocess_run
 
 
 class UvCli(DepGatherInterface):
@@ -73,14 +72,7 @@ class UvCli(DepGatherInterface):
 		for extra in extras:
 			command.extend(["--extra", extra])
 
-		result = subprocess.run(
-			command,
-			capture_output=True,
-			text=True,
-			check=False,
-		)
-		if result.returncode != 0:
-			raise RuntimeError(result.stderr, result.stdout)
+		result = subprocess_run(command)
 
 		# outputs a requirements.txt file
 		reqs = requirements.parse(result.stdout)

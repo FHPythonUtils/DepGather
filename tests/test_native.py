@@ -9,6 +9,15 @@ from tests.utils import assert_eq_packages, assert_in_packages, assert_not_in_pa
 THISDIR = Path(__file__).resolve().parent
 enable_verbose()
 
+
+def test_file_not_exists() -> None:
+	requirementsPath: Path = THISDIR / "file_does_not_exist.toml"
+	with pytest.raises(RuntimeError):
+		NativeInfer.gather(
+			requirementsPath=requirementsPath,
+		)
+
+
 @pytest.mark.parametrize(
 	("lockfile", "extradelta"),
 	[
@@ -92,7 +101,7 @@ def test_example1(requirements: str) -> None:
 		"requirements-parser",
 		"ruff",
 		"tomli",
-		"pygments", # pygments>=2.7.2; extra == "dev" local; pygments>=2.7.2 in ci/cd
+		"pygments",  # pygments>=2.7.2; extra == "dev" local; pygments>=2.7.2 in ci/cd
 	}
 
 	assert len(deps) == len(expected)

@@ -1,8 +1,10 @@
 import os
 import re
+import subprocess
 from collections.abc import Iterable
 from itertools import chain
 from pathlib import Path
+from subprocess import CompletedProcess
 from urllib.parse import urlparse
 
 from loguru import logger
@@ -30,7 +32,10 @@ def sanitize(
 	extras: Iterable[str] = (),
 	base_index_url: str = "https://pypi.org",
 ) -> None:
-	requirementsPath = requirementsPath.resolve(strict=True)
+	try:
+		requirementsPath = requirementsPath.resolve(strict=True)
+	except OSError as e:
+		raise RuntimeError from e
 
 	if not requirementsPath.exists():
 		msg = f"Could not find specification of requirements ({requirementsPath})."
@@ -77,3 +82,21 @@ def conditional_log(msg: str) -> None:
 	"""Log info if DEPGATHER_VERBOSE is set (env, or explicit opt in via enable_verbose)."""
 	if DEPGATHER_VERBOSE:
 		logger.info(msg)
+
+
+def subprocess_run(command: list[str]) -> CompletedProcess[str]:
+	try:
+		result = subprocess.run(
+			command,
+			capture_output=True,
+			text=True,
+			check=False,
+		)
+		if result.returncode != 0:
+			msg = f"Non-zero returncode: {result.stderr}, {result.stdout}"
+			raise RuntimeError(msg)
+
+	except OSError as e:
+		raise RuntimeError from e
+	else:
+		return result

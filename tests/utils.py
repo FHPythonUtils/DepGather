@@ -7,9 +7,10 @@ from packaging.utils import canonicalize_name
 logger.remove()
 
 logger.add(
-    sys.stderr,
-    format="{message}",
+	sys.stderr,
+	format="{message}",
 )
+
 
 def assert_eq_packages(a: set[Requirement], b: set[str]) -> None:
 	lhs = {canonicalize_name(x.name) for x in a}
