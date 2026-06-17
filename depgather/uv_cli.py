@@ -43,8 +43,8 @@ class UvCli(DepGatherInterface):
 
 		requirementsPathName = requirementsPath.as_posix()
 
-		if requirementsPathName.endswith((".lock", "lock.toml")):
-			msg = "lock files are not supported, use `NativeInfer.gather`."
+		if requirementsPathName.endswith((".lock", "lock.toml", ".json")):
+			msg = "lock files, and sboms are not supported, use `NativeInfer.gather`."
 			raise RuntimeError(msg)
 
 		if not requirementsPathName.endswith("pyproject.toml") and requirementsPathName.endswith(

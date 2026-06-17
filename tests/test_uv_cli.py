@@ -37,7 +37,7 @@ def test_lockfiles(lockfile: str) -> None:
 	requirementsPath: Path = THISDIR / "data/example1" / lockfile
 	skipDependencies: set[str] = {"TOSKIP"}
 
-	with pytest.raises(RuntimeError, match="lock files are not supported"):
+	with pytest.raises(RuntimeError, match="lock files, and sboms are not supported"):
 		UvCli.gather(
 			skipDependencies=skipDependencies,
 			extras=set(),

@@ -53,8 +53,8 @@ class PipResolver(DepGatherInterface):
 
 		requirementsPathName = requirementsPath.as_posix()
 
-		if requirementsPathName.endswith((".lock", ".toml")):
-			msg = "pyproject toml, and lock files are not supported."
+		if requirementsPathName.endswith((".lock", ".toml", ".json")):
+			msg = "pyproject toml, and lock files, and sboms are not supported."
 			raise RuntimeError(msg)
 
 		skip_names = {canonicalize_name(x) for x in skipDependencies}

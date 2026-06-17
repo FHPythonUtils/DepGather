@@ -18,11 +18,22 @@ from typing import Any, override
 import tomli
 from packaging.requirements import Requirement
 from packaging.utils import canonicalize_name
+from pydantic import BaseModel
 
 from depgather.interface import DepGatherInterface
 from depgather.models.cyclonedx import Bom
 from depgather.models.spdx import SPDX
 from depgather.utils import c14n_reqs, conditional_log, sanitize
+
+
+class ReqContainer(BaseModel):
+	name: str
+	version: str | None = None
+
+	def as_requirement(self) -> str:
+		if self.version:
+			return f"{self.name}=={self.version}"
+		return self.name
 
 
 class NativeInferState:
@@ -114,31 +125,34 @@ class NativeInferState:
 		self, pyproject: dict[str, Any], pakagekey: str = "package"
 	) -> bool:
 		for pkg in pyproject[pakagekey]:
-			if pkg.get("version"):
-				self.appendRequirement(f"{pkg['name']}=={pkg['version']}")
-			else:
-				self.appendRequirement(pkg["name"])
+			self.appendRequirement(
+				ReqContainer(name=pkg["name"], version=pkg.get("version")).as_requirement()
+			)
 
 		return True
 
 	def gather_cyclonedx_requirements(self, sbom: dict[str, Any]) -> bool:
 		sbom_: Bom = Bom.model_validate(sbom)
-		for component in sbom_.components:
-			if "pkg:pypi/" in component.purl:
-				if component.version:
-					self.appendRequirement(f"{component.name}=={component.version}")
-				else:
-					self.appendRequirement(component.name)
+		for x in sbom_.components:
+			if "pkg:pypi/" in x.purl:
+				self.appendRequirement(
+					ReqContainer(
+						name=x.name,
+						version=x.version,
+					).as_requirement()
+				)
 
 		return True
 
 	def gather_spdx_requirements(self, sbom: dict[str, Any]) -> bool:
 		sbom_: SPDX = SPDX.model_validate(sbom)
-		for package in sbom_.packages:
-			if package.version_info:
-				self.appendRequirement(f"{package.name}=={package.version_info}")
-			else:
-				self.appendRequirement(package.name)
+		for x in sbom_.packages:
+			self.appendRequirement(
+				ReqContainer(
+					name=x.name,
+					version=x.version_info,
+				).as_requirement()
+			)
 
 		return True
 
