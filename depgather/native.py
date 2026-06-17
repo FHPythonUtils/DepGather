@@ -7,6 +7,7 @@ requirementsPath.
 
 from __future__ import annotations
 
+import json
 from collections.abc import Iterable
 from configparser import ConfigParser, ParsingError
 from importlib import metadata
@@ -19,6 +20,8 @@ from packaging.requirements import Requirement
 from packaging.utils import canonicalize_name
 
 from depgather.interface import DepGatherInterface
+from depgather.models.cyclonedx import Bom
+from depgather.models.spdx import SPDX
 from depgather.utils import c14n_reqs, conditional_log, sanitize
 
 
@@ -115,6 +118,27 @@ class NativeInferState:
 				self.appendRequirement(f"{pkg['name']}=={pkg['version']}")
 			else:
 				self.appendRequirement(pkg["name"])
+
+		return True
+
+	def gather_cyclonedx_requirements(self, sbom: dict[str, Any]) -> bool:
+		sbom_: Bom = Bom.model_validate(sbom)
+		for component in sbom_.components:
+			if "pkg:pypi/" in component.purl:
+				if component.version:
+					self.appendRequirement(f"{component.name}=={component.version}")
+				else:
+					self.appendRequirement(component.name)
+
+		return True
+
+	def gather_spdx_requirements(self, sbom: dict[str, Any]) -> bool:
+		sbom_: SPDX = SPDX.model_validate(sbom)
+		for package in sbom_.packages:
+			if package.version_info:
+				self.appendRequirement(f"{package.name}=={package.version_info}")
+			else:
+				self.appendRequirement(package.name)
 
 		return True
 
@@ -275,6 +299,18 @@ class NativeInfer(DepGatherInterface):
 				return c14n_reqs(state.reqs.values())
 
 		except tomli.TOMLDecodeError:
+			pass
+
+		# when using a json sbom, also gatherinfer only
+		try:
+			sbom = json.loads(requirementsPath.read_text("utf-8"))
+			if sbom.get("bomFormat") == "CycloneDX" and state.gather_cyclonedx_requirements(
+				sbom=sbom
+			):
+				return c14n_reqs(state.reqs.values())
+			if sbom.get("spdxVersion") is not None and state.gather_spdx_requirements(sbom=sbom):
+				return c14n_reqs(state.reqs.values())
+		except json.JSONDecodeError:
 			pass
 
 		if not state.gather_infer(groups, extras, requirementsPath):

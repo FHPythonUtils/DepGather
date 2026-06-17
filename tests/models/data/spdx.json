@@ -1,0 +1,119 @@
+{
+    "spdxVersion": "SPDX-2.3",
+    "dataLicense": "CC0-1.0",
+    "SPDXID": "urn:uuid:75f288a4-9722-437e-8204-6c97f6fb23a4",
+    "name": "depgather",
+    "documentNamespace": "https://sbomgenerator.com/spdx/depgather-6a32f0e027d90",
+    "creationInfo": {
+        "created": "2026-06-17T19:09:20+00:00",
+        "creators": [
+            "Tool: SBOM Generator"
+        ]
+    },
+    "packages": [
+        {
+            "SPDXID": "SPDXRef-basedpyright",
+            "name": "basedpyright",
+            "versionInfo": "1.39.7",
+            "downloadLocation": "NOASSERTION",
+            "filesAnalyzed": false,
+            "copyrightText": "NOASSERTION"
+        },
+        {
+            "SPDXID": "SPDXRef-colorama",
+            "name": "colorama",
+            "versionInfo": "0.4.6",
+            "downloadLocation": "NOASSERTION",
+            "filesAnalyzed": false,
+            "copyrightText": "NOASSERTION"
+        },
+        {
+            "SPDXID": "SPDXRef-coverage",
+            "name": "coverage",
+            "versionInfo": "7.6.12",
+            "downloadLocation": "NOASSERTION",
+            "filesAnalyzed": false,
+            "copyrightText": "NOASSERTION"
+        },
+        {
+            "SPDXID": "SPDXRef-iniconfig",
+            "name": "iniconfig",
+            "versionInfo": "2.0.0",
+            "downloadLocation": "NOASSERTION",
+            "filesAnalyzed": false,
+            "copyrightText": "NOASSERTION"
+        },
+        {
+            "SPDXID": "SPDXRef-loguru",
+            "name": "loguru",
+            "versionInfo": "0.7.3",
+            "downloadLocation": "NOASSERTION",
+            "filesAnalyzed": false,
+            "copyrightText": "NOASSERTION"
+        },
+        {
+            "SPDXID": "SPDXRef-nodejs-wheel-binaries",
+            "name": "nodejs-wheel-binaries",
+            "versionInfo": "24.16.0",
+            "downloadLocation": "NOASSERTION",
+            "filesAnalyzed": false,
+            "copyrightText": "NOASSERTION"
+        },
+        {
+            "SPDXID": "SPDXRef-packaging",
+            "name": "packaging",
+            "versionInfo": "24.2",
+            "downloadLocation": "NOASSERTION",
+            "filesAnalyzed": false,
+            "copyrightText": "NOASSERTION"
+        },
+        {
+            "SPDXID": "SPDXRef-pluggy",
+            "name": "pluggy",
+            "versionInfo": "1.5.0",
+            "downloadLocation": "NOASSERTION",
+            "filesAnalyzed": false,
+            "copyrightText": "NOASSERTION"
+        },
+        {
+            "SPDXID": "SPDXRef-pytest",
+            "name": "pytest",
+            "versionInfo": "8.3.5",
+            "downloadLocation": "NOASSERTION",
+            "filesAnalyzed": false,
+            "copyrightText": "NOASSERTION"
+        },
+        {
+            "SPDXID": "SPDXRef-requirements-parser",
+            "name": "requirements-parser",
+            "versionInfo": "0.13.0",
+            "downloadLocation": "NOASSERTION",
+            "filesAnalyzed": false,
+            "copyrightText": "NOASSERTION"
+        },
+        {
+            "SPDXID": "SPDXRef-ruff",
+            "name": "ruff",
+            "versionInfo": "0.11.0",
+            "downloadLocation": "NOASSERTION",
+            "filesAnalyzed": false,
+            "copyrightText": "NOASSERTION"
+        },
+        {
+            "SPDXID": "SPDXRef-tomli",
+            "name": "tomli",
+            "versionInfo": "2.2.1",
+            "downloadLocation": "NOASSERTION",
+            "filesAnalyzed": false,
+            "copyrightText": "NOASSERTION"
+        },
+        {
+            "SPDXID": "SPDXRef-win32-setctime",
+            "name": "win32-setctime",
+            "versionInfo": "1.2.0",
+            "downloadLocation": "NOASSERTION",
+            "filesAnalyzed": false,
+            "copyrightText": "NOASSERTION"
+        }
+    ]
+}

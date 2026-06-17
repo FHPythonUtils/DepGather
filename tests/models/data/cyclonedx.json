@@ -1,0 +1,205 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "version": 1,
+  "serialNumber": "urn:uuid:75f288a4-9722-437e-8204-6c97f6fb23a4",
+  "metadata": {
+    "timestamp": "2026-06-17T18:14:30.023091948Z",
+    "tools": [
+      {
+        "vendor": "Astral Software Inc.",
+        "name": "uv",
+        "version": "0.9.26"
+      }
+    ],
+    "component": {
+      "type": "library",
+      "bom-ref": "depgather-1@0.4.0",
+      "name": "depgather",
+      "version": "0.4.0"
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "basedpyright-2@1.39.7",
+      "name": "basedpyright",
+      "version": "1.39.7",
+      "purl": "pkg:pypi/basedpyright@1.39.7"
+    },
+    {
+      "type": "library",
+      "bom-ref": "colorama-3@0.4.6",
+      "name": "colorama",
+      "version": "0.4.6",
+      "purl": "pkg:pypi/colorama@0.4.6",
+      "properties": [
+        {
+          "name": "uv:package:marker",
+          "value": "sys_platform == 'win32'"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "coverage-4@7.6.12",
+      "name": "coverage",
+      "version": "7.6.12",
+      "purl": "pkg:pypi/coverage@7.6.12"
+    },
+    {
+      "type": "library",
+      "bom-ref": "iniconfig-5@2.0.0",
+      "name": "iniconfig",
+      "version": "2.0.0",
+      "purl": "pkg:pypi/iniconfig@2.0.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "loguru-6@0.7.3",
+      "name": "loguru",
+      "version": "0.7.3",
+      "purl": "pkg:pypi/loguru@0.7.3"
+    },
+    {
+      "type": "library",
+      "bom-ref": "nodejs-wheel-binaries-7@24.16.0",
+      "name": "nodejs-wheel-binaries",
+      "version": "24.16.0",
+      "purl": "pkg:pypi/nodejs-wheel-binaries@24.16.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "packaging-8@24.2",
+      "name": "packaging",
+      "version": "24.2",
+      "purl": "pkg:pypi/packaging@24.2"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pluggy-9@1.5.0",
+      "name": "pluggy",
+      "version": "1.5.0",
+      "purl": "pkg:pypi/pluggy@1.5.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pytest-10@8.3.5",
+      "name": "pytest",
+      "version": "8.3.5",
+      "purl": "pkg:pypi/pytest@8.3.5"
+    },
+    {
+      "type": "library",
+      "bom-ref": "requirements-parser-11@0.13.0",
+      "name": "requirements-parser",
+      "version": "0.13.0",
+      "purl": "pkg:pypi/requirements-parser@0.13.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "ruff-12@0.11.0",
+      "name": "ruff",
+      "version": "0.11.0",
+      "purl": "pkg:pypi/ruff@0.11.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "tomli-13@2.2.1",
+      "name": "tomli",
+      "version": "2.2.1",
+      "purl": "pkg:pypi/tomli@2.2.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "win32-setctime-14@1.2.0",
+      "name": "win32-setctime",
+      "version": "1.2.0",
+      "purl": "pkg:pypi/win32-setctime@1.2.0",
+      "properties": [
+        {
+          "name": "uv:package:marker",
+          "value": "sys_platform == 'win32'"
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "basedpyright-2@1.39.7",
+      "dependsOn": [
+        "nodejs-wheel-binaries-7@24.16.0"
+      ]
+    },
+    {
+      "ref": "colorama-3@0.4.6",
+      "dependsOn": []
+    },
+    {
+      "ref": "coverage-4@7.6.12",
+      "dependsOn": []
+    },
+    {
+      "ref": "depgather-1@0.4.0",
+      "dependsOn": [
+        "basedpyright-2@1.39.7",
+        "coverage-4@7.6.12",
+        "loguru-6@0.7.3",
+        "pytest-10@8.3.5",
+        "requirements-parser-11@0.13.0",
+        "ruff-12@0.11.0",
+        "tomli-13@2.2.1"
+      ]
+    },
+    {
+      "ref": "iniconfig-5@2.0.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "loguru-6@0.7.3",
+      "dependsOn": [
+        "colorama-3@0.4.6",
+        "win32-setctime-14@1.2.0"
+      ]
+    },
+    {
+      "ref": "nodejs-wheel-binaries-7@24.16.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "packaging-8@24.2",
+      "dependsOn": []
+    },
+    {
+      "ref": "pluggy-9@1.5.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "pytest-10@8.3.5",
+      "dependsOn": [
+        "colorama-3@0.4.6",
+        "iniconfig-5@2.0.0",
+        "packaging-8@24.2",
+        "pluggy-9@1.5.0"
+      ]
+    },
+    {
+      "ref": "requirements-parser-11@0.13.0",
+      "dependsOn": [
+        "packaging-8@24.2"
+      ]
+    },
+    {
+      "ref": "ruff-12@0.11.0",
+      "dependsOn": []
+    },
+    {
+      "ref": "tomli-13@2.2.1",
+      "dependsOn": []
+    },
+    {
+      "ref": "win32-setctime-14@1.2.0",
+      "dependsOn": []
+    }
+  ]
+}

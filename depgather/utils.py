@@ -13,14 +13,7 @@ from packaging.utils import canonicalize_name
 
 NAME_RE = re.compile(r"^(?!-)[A-Za-z0-9_.-]+$")
 
-SUPPORTED_SUFFIXES = {
-	".in",
-	".txt",
-	".toml",
-	".cfg",
-	".py",
-	".lock",
-}
+SUPPORTED_SUFFIXES = {".in", ".txt", ".toml", ".cfg", ".py", ".lock", ".json"}
 
 DEPGATHER_VERBOSE: bool = bool(os.environ.get("DEPGATHER_VERBOSE"))
 

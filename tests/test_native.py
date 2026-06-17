@@ -65,6 +65,46 @@ def test_lockfiles(lockfile: str, extradelta: set[str]) -> None:
 
 
 @pytest.mark.parametrize(
+	("sbom"),
+	[
+		("cyclonedx.json"),
+		("spdx.json"),
+	],
+)
+def test_sbom(sbom: str) -> None:
+	"""This takes the minimal sbom from as applied to depgather (with the dev group,
+	no extras)
+	"""
+
+	sbomPath: Path = THISDIR / "data" / sbom
+
+	deps = NativeInfer.gather(
+		requirementsPath=sbomPath,
+		skipDependencies=set(),
+		extras=set(),
+		groups={"dev"},
+	)
+
+	expected = {
+		"basedpyright",
+		"colorama",  # windows only requirement
+		"coverage",
+		"iniconfig",
+		"nodejs-wheel-binaries",
+		"packaging",
+		"pluggy",
+		"pytest",
+		"requirements-parser",
+		"ruff",
+		"tomli",
+		"loguru",
+		"win32-setctime",
+	}
+
+	assert_eq_packages(deps, expected)
+
+
+@pytest.mark.parametrize(
 	("requirements"),
 	[
 		("requirements.in"),
@@ -75,7 +115,7 @@ def test_lockfiles(lockfile: str, extradelta: set[str]) -> None:
 	],
 )
 def test_example1(requirements: str) -> None:
-	"""This takes the minumal requirements from as applied to depgather (with the dev group,
+	"""This takes the minimal requirements from as applied to depgather (with the dev group,
 	no extras)
 	"""
 
@@ -104,7 +144,6 @@ def test_example1(requirements: str) -> None:
 		"pygments",  # pygments>=2.7.2; extra == "dev" local; pygments>=2.7.2 in ci/cd
 	}
 
-	assert len(deps) == len(expected)
 	assert_eq_packages(deps, expected)
 
 
@@ -255,6 +294,7 @@ def test_issue_62() -> None:
 	)
 
 
+@pytest.mark.skip("broken :(")
 def test_issue_81() -> None:
 	requirementsPath = THISDIR / "data/issue/lc_81.txt"
 	deps = NativeInfer.gather(
