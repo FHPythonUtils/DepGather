@@ -52,6 +52,7 @@ def test_lockfiles(lockfile: str) -> None:
 		("requirements.in"),
 		("requirements.txt"),
 		("pyproject.toml"),
+		("poetryv1.toml"),
 		("setup.py"),
 		("setup.cfg"),
 	],
