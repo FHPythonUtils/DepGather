@@ -1,0 +1,85 @@
+{
+    "info": {
+        "author": "Kenneth Knowles",
+        "author_email": "kenn.knowles@gmail.com",
+        "bugtrack_url": null,
+        "classifiers": [
+            "Development Status :: 5 - Production/Stable",
+            "Intended Audience :: Developers",
+            "License :: OSI Approved :: Apache Software License",
+            "Programming Language :: Python :: 2",
+            "Programming Language :: Python :: 2.6",
+            "Programming Language :: Python :: 2.7",
+            "Programming Language :: Python :: 3",
+            "Programming Language :: Python :: 3.2",
+            "Programming Language :: Python :: 3.3"
+        ],
+        "description": "Python JSONPath RW\n==================\n\nhttps://github.com/kennknowles/python-jsonpath-rw\n\n|Build Status| |Test coverage| |PyPi version| |PyPi downloads|\n\nThis library provides a robust and significantly extended implementation\nof JSONPath for Python. It is tested with Python 2.6, 2.7, 3.2, 3.3. \n*(On travis-ci there is a segfault when running the tests with pypy; I don't think the problem lies with this library)*.\n\nThis library differs from other JSONPath implementations in that it is a\nfull *language* implementation, meaning the JSONPath expressions are\nfirst class objects, easy to analyze, transform, parse, print, and\nextend. (You can also execute them :-)\n\nQuick Start\n-----------\n\nTo install, use pip:\n\n::\n\n    $ pip install jsonpath-rw\n\nThen:\n\n.. code:: python\n\n    $ python\n\n    >>> from jsonpath_rw import jsonpath, parse\n\n    # A robust parser, not just a regex. (Makes powerful extensions possible; see below)\n    >>> jsonpath_expr = parse('foo[*].baz')\n\n    # Extracting values is easy\n    >>> [match.value for match in jsonpath_expr.find({'foo': [{'baz': 1}, {'baz': 2}]})]\n    [1, 2]\n\n    # Matches remember where they came from\n    >>> [str(match.full_path) for match in jsonpath_expr.find({'foo': [{'baz': 1}, {'baz': 2}]})]\n    ['foo.[0].baz', 'foo.[1].baz']\n\n    # And this can be useful for automatically providing ids for bits of data that do not have them (currently a global switch)\n    >>> jsonpath.auto_id_field = 'id'\n    >>> [match.value for match in parse('foo[*].id').find({'foo': [{'id': 'bizzle'}, {'baz': 3}]})]\n    ['foo.bizzle', 'foo.[1]']\n\n    # A handy extension: named operators like `parent`\n    >>> [match.value for match in parse('a.*.b.`parent`.c').find({'a': {'x': {'b': 1, 'c': 'number one'}, 'y': {'b': 2, 'c': 'number two'}}})]\n    ['number two', 'number one']\n\n    # You can also build expressions directly quite easily \n    >>> from jsonpath_rw.jsonpath import Fields\n    >>> from jsonpath_rw.jsonpath import Slice\n\n    >>> jsonpath_expr_direct = Fields('foo').child(Slice('*')).child(Fields('baz'))  # This is equivalent\n\nJSONPath Syntax\n---------------\n\nThe JSONPath syntax supported by this library includes some additional\nfeatures and omits some problematic features (those that make it\nunportable). In particular, some new operators such as ``|`` and\n``where`` are available, and parentheses are used for grouping not for\ncallbacks into Python, since with these changes the language is not\ntrivially associative. Also, fields may be quoted whether or not they\nare contained in brackets.\n\nAtomic expressions:\n\n+-----------------------+---------------------------------------------------------------------------------------------+\n| Syntax                | Meaning                                                                                     |\n+=======================+=============================================================================================+\n| ``$``                 | The root object                                                                             |\n+-----------------------+---------------------------------------------------------------------------------------------+\n| ```this```            | The \"current\" object.                                                                       |\n+-----------------------+---------------------------------------------------------------------------------------------+\n| ```foo```             | More generally, this syntax allows \"named operators\" to extend JSONPath is arbitrary ways   |\n+-----------------------+---------------------------------------------------------------------------------------------+\n| *field*               | Specified field(s), described below                                                         |\n+-----------------------+---------------------------------------------------------------------------------------------+\n| ``[`` *field* ``]``   | Same as *field*                                                                             |\n+-----------------------+---------------------------------------------------------------------------------------------+\n| ``[`` *idx* ``]``     | Array access, described below (this is always unambiguous with field access)                |\n+-----------------------+---------------------------------------------------------------------------------------------+\n\nJsonpath operators:\n\n+-------------------------------------+------------------------------------------------------------------------------------+\n| Syntax                              | Meaning                                                                            |\n+=====================================+====================================================================================+\n| *jsonpath1* ``.`` *jsonpath2*       | All nodes matched by *jsonpath2* starting at any node matching *jsonpath1*         |\n+-------------------------------------+------------------------------------------------------------------------------------+\n| *jsonpath* ``[`` *whatever* ``]``   | Same as *jsonpath*\\ ``.``\\ *whatever*                                              |\n+-------------------------------------+------------------------------------------------------------------------------------+\n| *jsonpath1* ``..`` *jsonpath2*      | All nodes matched by *jsonpath2* that descend from any node matching *jsonpath1*   |\n+-------------------------------------+------------------------------------------------------------------------------------+\n| *jsonpath1* ``where`` *jsonpath2*   | Any nodes matching *jsonpath1* with a child matching *jsonpath2*                   |\n+-------------------------------------+------------------------------------------------------------------------------------+\n| *jsonpath1* ``|`` *jsonpath2*       | Any nodes matching the union of *jsonpath1* and *jsonpath2*                        |\n+-------------------------------------+------------------------------------------------------------------------------------+\n\nField specifiers ( *field* ):\n\n+-------------------------+-------------------------------------------------------------------------------------+\n| Syntax                  | Meaning                                                                             |\n+=========================+=====================================================================================+\n| ``fieldname``           | the field ``fieldname`` (from the \"current\" object)                                 |\n+-------------------------+-------------------------------------------------------------------------------------+\n| ``\"fieldname\"``         | same as above, for allowing special characters in the fieldname                     |\n+-------------------------+-------------------------------------------------------------------------------------+\n| ``'fieldname'``         | ditto                                                                               |\n+-------------------------+-------------------------------------------------------------------------------------+\n| ``*``                   | any field                                                                           |\n+-------------------------+-------------------------------------------------------------------------------------+\n| *field* ``,`` *field*   | either of the named fields (you can always build equivalent jsonpath using ``|``)   |\n+-------------------------+-------------------------------------------------------------------------------------+\n\nArray specifiers ( *idx* ):\n\n+-----------------------------------------+---------------------------------------------------------------------------------------+\n| Syntax                                  | Meaning                                                                               |\n+=========================================+=======================================================================================+\n| ``[``\\ *n*\\ ``]``                       | array index (may be comma-separated list)                                             |\n+-----------------------------------------+---------------------------------------------------------------------------------------+\n| ``[``\\ *start*\\ ``?:``\\ *end*\\ ``?]``   | array slicing (note that *step* is unimplemented only due to lack of need thus far)   |\n+-----------------------------------------+---------------------------------------------------------------------------------------+\n| ``[*]``                                 | any array index                                                                       |\n+-----------------------------------------+---------------------------------------------------------------------------------------+\n\nProgrammatic JSONPath\n---------------------\n\nIf you are programming in Python and would like a more robust way to\ncreate JSONPath expressions that does not depend on a parser, it is very\neasy to do so directly, and here are some examples:\n\n-  ``Root()``\n-  ``Slice(start=0, end=None, step=None)``\n-  ``Fields('foo', 'bar')``\n-  ``Index(42)``\n-  ``Child(Fields('foo'), Index(42))``\n-  ``Where(Slice(), Fields('subfield'))``\n-  ``Descendants(jsonpath, jsonpath)``\n\nExtensions\n----------\n\n-  *Path data*: The result of ``JsonPath.find`` provide detailed context\n   and path data so it is easy to traverse to parent objects, print full\n   paths to pieces of data, and generate automatic ids.\n-  *Automatic Ids*: If you set ``jsonpath_rw.auto_id_field`` to a value\n   other than None, then for any piece of data missing that field, it\n   will be replaced by the JSONPath to it, giving automatic unique ids\n   to any piece of data. These ids will take into account any ids\n   already present as well.\n-  *Named operators*: Instead of using ``@`` to reference the currently\n   object, this library uses ```this```. In general, any string\n   contained in backquotes can be made to be a new operator, currently\n   by extending the library.\n\nMore to explore\n---------------\n\nThere are way too many jsonpath implementations out there to discuss.\nSome are robust, some are toy projects that still work fine, some are\nexercises. There will undoubtedly be many more. This one is made for use\nin released, maintained code, and in particular for programmatic access\nto the abstract syntax and extension. But JSONPath at its simplest just\nisn't that complicated, so you can probably use any of them\nsuccessfully. Why not this one?\n\nThe original proposal, as far as I know:\n\n-  `JSONPath - XPath for\n   JSON <http://goessner.net/articles/JSONPath/>`__ by Stefan Goessner.\n\nSpecial note about PLY and docstrings\n-------------------------------------\n\nThe main parsing toolkit underlying this library,\n`PLY <https://github.com/dabeaz/ply>`__, does not work with docstrings\nremoved. For example, ``PYTHONOPTIMIZE=2`` and ``python -OO`` will both\ncause a failure.\n\nContributors\n------------\n\nThis package is authored and maintained by:\n\n-  `Kenn Knowles <https://github.com/kennknowles>`__\n   (`@kennknowles <https://twitter.com/KennKnowles>`__)\n   \nwith the help of patches submitted by `these contributors <https://github.com/kennknowles/python-jsonpath-rw/graphs/contributors>`__.\n\nCopyright and License\n---------------------\n\nCopyright 2013- Kenneth Knowles\n\nLicensed under the Apache License, Version 2.0 (the \"License\"); you may\nnot use this file except in compliance with the License. You may obtain\na copy of the License at\n\n::\n\n    http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an \"AS IS\" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.\n\n.. |Build Status| image:: https://travis-ci.org/kennknowles/python-jsonpath-rw.png?branch=master\n   :target: https://travis-ci.org/kennknowles/python-jsonpath-rw\n.. |Test coverage| image:: https://coveralls.io/repos/kennknowles/python-jsonpath-rw/badge.png?branch=master\n   :target: https://coveralls.io/r/kennknowles/python-jsonpath-rw\n.. |PyPi version| image:: https://pypip.in/v/jsonpath-rw/badge.png\n   :target: https://pypi.python.org/pypi/jsonpath-rw\n.. |PyPi downloads| image:: https://pypip.in/d/jsonpath-rw/badge.png\n   :target: https://pypi.python.org/pypi/jsonpath-rw",
+        "description_content_type": null,
+        "docs_url": null,
+        "download_url": "UNKNOWN",
+        "downloads": {
+            "last_day": -1,
+            "last_month": -1,
+            "last_week": -1
+        },
+        "dynamic": null,
+        "home_page": "https://github.com/kennknowles/python-jsonpath-rw",
+        "keywords": null,
+        "license": "Apache 2.0",
+        "license_expression": null,
+        "license_files": null,
+        "maintainer": null,
+        "maintainer_email": null,
+        "name": "jsonpath-rw",
+        "package_url": "https://pypi.org/project/jsonpath-rw/",
+        "platform": "UNKNOWN",
+        "project_url": "https://pypi.org/project/jsonpath-rw/",
+        "project_urls": {
+            "Download": "UNKNOWN",
+            "Homepage": "https://github.com/kennknowles/python-jsonpath-rw"
+        },
+        "provides_extra": null,
+        "release_url": "https://pypi.org/project/jsonpath-rw/1.4.0/",
+        "requires_dist": null,
+        "requires_python": null,
+        "summary": "A robust and significantly extended implementation of JSONPath for Python, with a clear AST for metaprogramming.",
+        "version": "1.4.0",
+        "yanked": false,
+        "yanked_reason": null
+    },
+    "last_serial": 1511129,
+    "ownership": {
+        "organization": null,
+        "roles": [
+            {
+                "role": "Owner",
+                "user": "KennKnowles"
+            }
+        ]
+    },
+    "urls": [
+        {
+            "comment_text": "",
+            "digests": {
+                "blake2b_256": "717c45001b1f19af8c4478489fbae4fc657b21c4c669d7a5a036a86882581d85",
+                "md5": "3a807e05c2c12158fc6bb0a402fd5778",
+                "sha256": "05c471281c45ae113f6103d1268ec7a4831a2e96aa80de45edc89b11fac4fbec"
+            },
+            "downloads": -1,
+            "filename": "jsonpath-rw-1.4.0.tar.gz",
+            "has_sig": false,
+            "md5_digest": "3a807e05c2c12158fc6bb0a402fd5778",
+            "packagetype": "sdist",
+            "python_version": "source",
+            "requires_python": null,
+            "size": 13814,
+            "upload_time": "2015-04-19T01:47:15",
+            "upload_time_iso_8601": "2015-04-19T01:47:15.060153Z",
+            "url": "https://files.pythonhosted.org/packages/71/7c/45001b1f19af8c4478489fbae4fc657b21c4c669d7a5a036a86882581d85/jsonpath-rw-1.4.0.tar.gz",
+            "yanked": false,
+            "yanked_reason": null
+        }
+    ],
+    "vulnerabilities": []
+}

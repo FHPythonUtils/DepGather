@@ -15,6 +15,7 @@ THISDIR = Path(__file__).resolve().parent
 		"example_version.json",
 		"invalid_url.json",
 		"requests.json",
+		"jsonpath-rw.json",
 	],
 )
 def test_model_validate(src: str) -> None:
