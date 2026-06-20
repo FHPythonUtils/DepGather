@@ -68,6 +68,7 @@ class PipResolver(DepGatherInterface):
 				"--no-color",
 				"--dry-run",
 				"--quiet",
+				"--force-reinstall",
 				"--report",
 				str(report_path),
 				"--index-url",
