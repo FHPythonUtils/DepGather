@@ -68,6 +68,6 @@ def test_issue_84() -> None:
 			"tzdata",
 			"vine",
 			"wcwidth",
-			# "packaging", # not present locally
+			"packaging",
 		},
 	)
