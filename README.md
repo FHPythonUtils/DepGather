@@ -4,7 +4,7 @@
 [![Commit activity](https://img.shields.io/github/commit-activity/m/FHPythonUtils/DepGather.svg?style=for-the-badge&cacheSeconds=28800)](../../commits/master)
 [![Last commit](https://img.shields.io/github/last-commit/FHPythonUtils/DepGather.svg?style=for-the-badge&cacheSeconds=28800)](../../commits/master)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/depgather.svg?style=for-the-badge&cacheSeconds=28800)](https://pypistats.org/packages/depgather)
-[![PyPI Total Downloads](https://img.shields.io/badge/dynamic/json?style=for-the-badge&label=total%20downloads&query=%24.total_downloads&url=https%3A%2F%2Fapi%2Epepy%2Etech%2Fapi%2Fv2%2Fprojects%2Fdepgather)](https://pepy.tech/project/depgather)
+[![PyPI Total Downloads](https://img.shields.io/pepy/dt/depgather?style=for-the-badge&label=Total%20Downloads&cacheSeconds=28800)](https://pepy.tech/project/depgather)
 [![PyPI Version](https://img.shields.io/pypi/v/depgather.svg?style=for-the-badge&cacheSeconds=28800)](https://pypi.org/project/depgather)
 
 <!-- omit in toc -->
